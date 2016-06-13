@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 #qsub for SGE->SLURM -- Matt Maurano
 
@@ -7,7 +7,6 @@ import os
 import re
 import subprocess
 import argparse
-
 
 def quote_argument(argument):
        return '%s' % (
@@ -18,8 +17,7 @@ def quote_argument(argument):
               .replace('`', '\\`')
 )
 
-
-parser = argparse.ArgumentParser(prog = "qsub", description = "", allow_abbrev=False)
+parser = argparse.ArgumentParser(prog = "qsub", description = "")
 
 sge_group = parser.add_argument_group(title="SGE options")
 sge_group.add_argument("cmd", type = str, default=None, nargs="?", help = "")
@@ -57,8 +55,8 @@ except argparse.ArgumentError as exc:
 
 
 if args.verbose:
-       print("[qsub -> SLURM] " + ' '.join([str(cur) for cur in sys.argv]), file=sys.stderr)
-print("[qsub -> SLURM]", args, file=sys.stderr)
+       sys.stderr.write("[qsub -> SLURM] " + ' '.join([str(cur) for cur in sys.argv]) + '\n')
+sys.stderr.write("[qsub -> SLURM] " + str(args) + "\n")
 sys.stderr.flush()
 
 
@@ -142,7 +140,7 @@ if args.hold_jid is not None:
                      #BUGBUG can't handle a name corresponding to multiple IDs
                      hold_jid_list[i] = sjobname2id(job)
                      if args.verbose:
-                            print("Converted job name " + job + " to id " + hold_jid_list[i], file=sys.stderr)
+                            sys.stderr.write("Converted job name " + job + " to id " + hold_jid_list[i] + '\n')
                      
        #NB use afterok even though SGE only blocks dependencies upon a 100 return code
        theCmd += " --depend=afterok:" + ",".join(hold_jid_list)
@@ -223,6 +221,6 @@ theCmd += "rm -rf \$TMPDIR\n\n"
 theCmd += "EOF\n"
 
 if args.verbose:
-       print("[qsub -> SLURM] " + theCmd, file=sys.stderr)
+       sys.stderr.write("[qsub -> SLURM] " + theCmd + '\n')
 
-subprocess.call(theCmd, shell=True)
+subprocess.check_call(theCmd, shell=True)
